@@ -30,9 +30,17 @@ export default {
 
     const responseData = await response.json();
     if (!response.ok) {
-      const error = new Error(
-        responseData.message || "Failed to authenticate. Check your login data."
+      const error = await new Error(
+        responseData.error.message ||
+          "Failed to authenticate. Check your login data."
       );
+
+      context.dispatch("setCredentialsAlert", {
+        errorResponse: responseData.error.message,
+        alertShow: true,
+      });
+      console.log(responseData.error.message);
+
       throw error;
     }
 
@@ -42,7 +50,7 @@ export default {
     const computedAccountId = function computeAccountId() {
       var str = responseData.localId;
       var matches = str.replace(/[^0-9]/g, "");
-      accountId = "CU-"+matches;
+      accountId = "CU-" + matches;
     };
 
     computedAccountId();
@@ -60,10 +68,9 @@ export default {
       token: responseData.idToken,
       userId: responseData.localId,
       userEmail: responseData.email,
-      accountId: accountId
+      accountId: accountId,
       // tokenExpiration: expirationDate,
     });
-
 
     //set timeout when the user logs in then automatically logs them out when timeout clears
     timer = setTimeout(function () {
@@ -71,8 +78,19 @@ export default {
     }, expiresIn);
 
     if (mode === "signup") {
-      context.dispatch('management/setDefaultManagement', {root:true})
+      context.dispatch("management/setDefaultManagement", { root: true });
     }
+  },
+  setCredentialsAlert(context, payload) {
+    context.commit("setCredentialsAlert", payload);
+  },
+  setAlertShow(context, data) {
+    const returnedData = {
+      status: data.status,
+    };
+    context.commit("setAlertShow", {
+      ...returnedData,
+    });
   },
 
   setEmail(context, payload) {

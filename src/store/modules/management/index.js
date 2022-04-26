@@ -6,14 +6,18 @@ export default {
   namespaced: true,
   state() {
     return {
-      accountBalance: 0.00,
-      ledgerBalance: 0.00,
-      accountPerformance: "2%",
+      accountBalance: 0.0,
+      ledgerBalance: 0.0,
+      accountPerformance: 0,
+      accountQuota: null,
+      ledgerQuota: null,
       hasUpdatedAccount: false,
       hasSignatory: false,
       hasProfilePicture: false,
       hasCompletedAccount: false,
-      accountEmail: ""
+      accountEmail: "",
+      loanStatus: "",
+      userEmail: "",
     };
   },
   mutations,

@@ -14,8 +14,9 @@ import BaseSpinner from "@/components/UI/BaseSpinner.vue";
 import BaseButton from "@/components/UI/BaseButton.vue";
 import BaseScroller from "@/components/UI/BaseScroller.vue";
 import BaseSpinnerButton from "@/components/UI/BaseSpinnerButton.vue";
-import MoonLoader from "vue-spinner/src/MoonLoader.vue";
+import ClipLoader from "vue-spinner/src/ClipLoader.vue";
 import theRightPopover from "@/components/Popovers/theRightPopover.vue";
+import TheAlert from "@/components/Popovers/TheAlert.vue";
 
 const app = createApp(App);
 app.use(router);
@@ -25,7 +26,8 @@ app.component("base-spinner", BaseSpinner);
 BaseButton;
 app.component("base-button", BaseButton);
 app.component("base-scroller", BaseScroller);
-app.component("moon-loader", MoonLoader);
+app.component("the-alert", TheAlert);
+app.component("clip-loader", ClipLoader);
 app.component("base-spinner-button", BaseSpinnerButton);
 app.component("the-right-popover", theRightPopover);
 

@@ -19,7 +19,8 @@ export default {
       businessName: "",
       businessAddress: "",
       businessCity: "",
-      isUpdating: false
+      isUpdating: false,
+      areInputsDisabled: true,
     };
   },
   mutations,

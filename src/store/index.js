@@ -5,8 +5,7 @@ import statementModule from "./modules/statement/index.js";
 import authModule from "./modules/auth/index.js";
 import accountModule from "./modules/account/index.js";
 import managementModule from "./modules/management/index.js";
-
-
+import loanModule from "./modules/loan/index.js";
 
 const store = createStore({
   modules: {
@@ -14,7 +13,8 @@ const store = createStore({
     statement: statementModule,
     auth: authModule,
     account: accountModule,
-    management: managementModule
+    management: managementModule,
+    loan: loanModule,
   },
 });
 

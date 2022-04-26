@@ -10,6 +10,13 @@ export default {
     state.didAutoLogout = true;
   },
   setEmail(state, payload) {
-    state.userEmail = payload.userEmail
-  }
+    state.userEmail = payload.userEmail;
+  },
+  setCredentialsAlert(state, payload) {
+    state.errorResponse = payload.errorResponse;
+    state.alertShow = payload.alertShow;
+  },
+  setAlertShow(state, payload) {
+    state.alertShow = payload.status;
+  },
 };

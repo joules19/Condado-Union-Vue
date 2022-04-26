@@ -44,9 +44,9 @@ export default {
 button,
 a {
   text-decoration: none;
-  padding: 0.4rem 2rem;
+  padding: 0.4rem 1.7rem;
   font: inherit;
-  background-color: #12b982;
+  /* background-color: #12b982; */
   border: 1px solid #12b982;
   color: white;
   cursor: pointer;
@@ -59,6 +59,10 @@ a {
   margin: 0.5rem 0.5rem 0 0;
 }
 
+.with-bmt {
+  margin: 1rem 1rem 0 0;
+}
+
 .with-gradient {
   background: linear-gradient(
     to right,
@@ -68,11 +72,17 @@ a {
 }
 
 .dark-text {
-  color: #3d4b5e !important;
+  color: #3d4b5ee7 !important;
 }
 
 .sm-btn {
-  padding: 0.4rem 1rem;
+  padding: 0.3rem 1.3rem;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.md-btn {
+  padding: 0.4rem 1.2rem;
   font-size: 12px;
 }
 
@@ -101,7 +111,8 @@ button:active {
 .flat:active,
 .outline:hover,
 .outline:active {
-  background-color: #48c59b29;
+  background-color: #48c59b91;
   color: white;
+  border-color: transparent;
 }
 </style>

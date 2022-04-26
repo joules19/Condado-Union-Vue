@@ -1,7 +1,10 @@
 export default {
+  management(state) {
+    return state;
+  },
   accountBalance(state) {
     return state.accountBalance;
-  },  
+  },
   ledgerBalance(state) {
     return state.ledgerBalance;
   },
@@ -10,7 +13,7 @@ export default {
   },
   hasUpdatedAccount(state) {
     return state.hasUpdatedAccount;
-  },  
+  },
   hasProfilePicture(state) {
     return state.hasProfilePicture;
   },
@@ -23,4 +26,16 @@ export default {
   accountEmail(state) {
     return state.accountEmail;
   },
-}
+  loanStatus(state) {
+    return state.loanStatus;
+  },
+  accountQuota(state) {
+    return state.accountQuota;
+  },
+  ledgerQuota(state) {
+    return state.ledgerQuota;
+  },
+  performanceQuota(state) {
+    return state.performanceQuota;
+  },
+};

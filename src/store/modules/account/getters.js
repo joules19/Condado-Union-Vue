@@ -5,6 +5,9 @@ export default {
   isUpdating(state) {
     return state.isUpdating;
   },
+  areInputsDisabled(state) {
+    return state.areInputsDisabled;
+  },
   hasUpdated(state) {
     return state.hasUpdated;
   },

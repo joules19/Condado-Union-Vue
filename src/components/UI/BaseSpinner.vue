@@ -1,16 +1,16 @@
 <template>
-  <moon-loader class="cen" :color="color" :size="size"></moon-loader>
+  <clip-loader class="mt-2" :color="color" :size="size"></clip-loader>
 </template>
 
 <script>
-import MoonLoader from "vue-spinner/src/MoonLoader.vue";
+import ClipLoader from "vue-spinner/src/ClipLoader.vue";
 
 export default {
   props: ["loading", "color"],
-  component: { MoonLoader },
+  component: { ClipLoader },
   data() {
     return {
-      size: "50px",
+      size: "45px",
     };
   },
 };

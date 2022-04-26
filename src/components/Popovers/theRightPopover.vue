@@ -7,9 +7,9 @@
         class="
           with-gradient
           border-0
-          mr-3
           mt-6
-          mb-6
+          shadow-lg
+          mb-10
           block
           z-50
           font-normal
@@ -37,7 +37,7 @@
           >
             {{ title }}
           </div>
-          <div class="text-bluegray-600 p-3">
+          <div class="text-blueGray-700 p-3">
             {{ message }}
           </div>
         </div>
@@ -56,21 +56,20 @@ export default {
     popoverTitle() {
       return this.title.toUpperCase();
     },
-      popoverMessage() {
+    popoverMessage() {
       return this.message.toUpperCase();
     },
-   
-
   },
 };
 </script>
 
 <style scoped>
 .with-gradient {
+  opacity: 0.9;
   background: linear-gradient(
     to right,
-    #aaffa9,
-    #11ffbd
+    #aaffa9ad,
+    #11ffbc95
   ) !important; /* Chrome 10-25, Safari 5.1-6 */
 }
 </style>

@@ -18,30 +18,22 @@
         >
           <div class="rounded-t mb-0 px-6 py-6">
             <div class="text-center mb-3">
-              <h6 class="text-blueGray-500 text-sm font-bold">Log In</h6>
+              <h6 class="text-blueGray-500 text-xl font-normal">Log in</h6>
             </div>
-            <!-- <div class="btn-wrapper text-center">
-              <button
-                class="bg-white active:bg-blueGray-50 text-blueGray-700 font-normal px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1 uppercase shadow hover:shadow-md inline-flex items-center font-bold text-xs ease-linear transition-all duration-150"
-                type="button"
-              >
-                <img alt="..." class="w-5 mr-1" :src="github" />
-                Github
-              </button>
-              <button
-                class="bg-white active:bg-blueGray-50 text-blueGray-700 font-normal px-4 py-2 rounded outline-none focus:outline-none mr-1 mb-1 uppercase shadow hover:shadow-md inline-flex items-center font-bold text-xs ease-linear transition-all duration-150"
-                type="button"
-              >
-                <img alt="..." class="w-5 mr-1" :src="google" />
-                Google
-              </button>
-            </div> -->
-            <!-- <hr class="mt-6 border-b-1 border-blueGray-300" /> -->
           </div>
-          <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
+          <div class="flex-auto px-6 lg:px-10 py-10 pt-0">
             <!-- <div class="text-blueGray-400 text-center mb-3 font-bold">
               <small>Or sign in with credentials</small>
             </div> -->
+            <transition name="alert">
+              <div class="flex flex-wrap justify-end mb-4" v-show="alertShow">
+                <the-alert
+                  @click="closeAlert"
+                  :alertMessage="errorResponse"
+                  alertMode="with-warning"
+                ></the-alert>
+              </div>
+            </transition>
             <form @submit.prevent="submitForm">
               <div class="relative w-full mb-3">
                 <label
@@ -130,35 +122,39 @@
                       duration-150
                     "
                   />
-                  <span class="ml-2 text-sm font-semibold text-blueGray-600">
+                  <span class="ml-2 text-sm font-normal text-blueGray-400">
                     Remember me
                   </span>
                 </label>
               </div>
-              <p v-show="!formIsValid">
-                Please enter a valid Email and password (must be at least 6
-                characters long).
-              </p>
-              <moon-loader v-show="isLoading"></moon-loader>
-              <div class="text-start mt-6">
-                <base-button mode="solid with-mt">{{
-                  submitButtonCaption
-                }}</base-button>
-                <base-button
-                  type="button"
-                  mode="outline with-mt"
-                  @click="switchAuthMode"
-                  >{{ switchModeButtonCaption }}</base-button
-                >
+              <div class="flex flex-wrap justify-center mt-4 mb-4">
+                <p style="font-size: 13px" v-show="!formIsValid">
+                  Please enter a valid Email and password (must be at least 6
+                  characters long).
+                </p>
+                <transition name="fade-spinner">
+                  <base-spinner v-show="isLoading"></base-spinner>
+                </transition>
+                <div class="text-start mt-6" v-show="!isLoading">
+                  <base-button mode="solid with-mt">{{
+                    submitButtonCaption
+                  }}</base-button>
+                  <base-button
+                    type="button"
+                    mode="outline with-mt"
+                    @click="switchAuthMode"
+                    >{{ switchModeButtonCaption }}</base-button
+                  >
+                </div>
               </div>
             </form>
-            <div class="flex flex-wrap mt-6 relative">
+            <!-- <div class="flex flex-wrap mt-6 relative">
               <div class="w-1/2 font-semibold">
                 <router-link to="/auth/register" class="text-blueGray-900">
                   <small>Forgot password?</small>
                 </router-link>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
         <!-- <div class="flex flex-wrap mt-6 relative">
@@ -184,14 +180,16 @@
 export default {
   data() {
     return {
-      // github,
-      // google,
       email: "",
       pin: "",
       formIsValid: true,
       mode: "login",
       isLoading: false,
       error: null,
+      alertMode: "",
+      alertMessage: "",
+      blockeMessage:
+        "TOO_MANY_ATTEMPTS_TRY_LATER : Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.",
     };
   },
   methods: {
@@ -216,6 +214,9 @@ export default {
         } else {
           await this.$store.dispatch("signup", actionPayload);
         }
+        this.$store.dispatch("setAlertShow", {
+          status: false,
+        });
         this.$router.replace("/dashboard");
       } catch (err) {
         this.error = err.message || "Failed to authenticate. try later";
@@ -229,6 +230,11 @@ export default {
       } else {
         this.mode = "login";
       }
+    },
+    closeAlert() {
+      this.$store.dispatch("setAlertShow", {
+        status: false,
+      });
     },
   },
   computed: {
@@ -246,9 +252,68 @@ export default {
         return "Login Instead";
       }
     },
+    alertShow() {
+      return this.$store.getters["alertShow"];
+    },
+    errorResponse() {
+      let errorResp = "";
+      if (this.$store.getters["errorResponse"] === "INVALID_PASSWORD") {
+        errorResp =
+          "Invalid Password! Ensure credentials are correct and try again.";
+      } else if (this.$store.getters["errorResponse"] === "EMAIL_NOT_FOUND") {
+        errorResp = "Hello, we can't find that email address in our records.";
+      } else if (this.$store.getters["errorResponse"] === this.blockeMessage) {
+        errorResp =
+          "Access to this account has been temporarily disabled due to many failed login attempts.";
+      } else {
+        errorResp =
+          "Something's not right... make sure you arwe connected to the internet.";
+      }
+
+      return errorResp;
+    },
   },
 };
 </script>
 
-<style scoped>
+<style>
+.alert-enter-active {
+  animation: modal 0.3s ease-out;
+}
+
+.alert-leave-active {
+  animation: modal 0.3s ease-in reverse;
+}
+
+.fade-spinner-enter-from,
+.fade-spinner-leave-to {
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+}
+
+.fade-spinner-enter-to,
+.fade-spinner-leave-from {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.fade-spinner-enter-active {
+  transition: all 0.4s ease-out;
+}
+
+.fade-spinner-leave-active {
+  transition: all 0.4s ease-in;
+}
+
+@keyframes modal {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 </style>

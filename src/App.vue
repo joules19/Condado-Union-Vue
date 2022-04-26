@@ -12,15 +12,21 @@ export default {
     },
   },
   created() {
-
     this.$store.dispatch("tryLogin");
   },
   watch: {
     didAutoLogout(curValue, oldValue) {
       if (curValue && curValue !== oldValue) {
-        this.$router.replace("/auth/login")
+        this.$router.replace("/auth/login");
       }
     },
   },
 };
 </script>
+
+<style>
+body {
+  /* font-family: "Raleway", sans-serif; */
+  font-family: "Lato", sans-serif !important;
+}
+</style>

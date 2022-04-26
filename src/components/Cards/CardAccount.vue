@@ -15,17 +15,27 @@
   >
     <div class="rounded-t bg-white mb-0 px-6 py-6">
       <div class="text-center flex justify-between">
-        <h6 class="text-blueGray-700 text-xl font-bold">My Account</h6>
+        <!-- <h6 class="text-blueGray-700 text-xl font-semibold">My Account</h6> -->
+        <h1 class="text-blueGray-400 text-xl font-semibold">My Account</h1>
+
         <base-button
-          v-show="!loading"
-          mode="solid with-gradient dark-text"
+          mode="solid sm-btn with-gradient dark-text"
           @click="updateAccount"
         >
           {{ updateText }}</base-button
         >
       </div>
     </div>
-    <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
+    <div class="flex-auto px-4 lg:px-10 py-10 mt-2 pt-0">
+      <transition name="alert">
+        <div class="flex flex-wrap justify-end" v-show="alertShow">
+          <the-alert
+            @click="close"
+            :alertMessage="alertMessage"
+            :alertMode="alertMode"
+          ></the-alert>
+        </div>
+      </transition>
       <form>
         <h6 class="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">
           Account Information
@@ -114,6 +124,7 @@
                 :value="firstName"
                 placeholder="First Name"
                 ref="firstName"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -143,6 +154,7 @@
                 placeholder="Last Name"
                 :value="lastName"
                 ref="lastName"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -172,6 +184,7 @@
                 placeholder="Birth Date"
                 :value="dob"
                 ref="dob"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -208,6 +221,20 @@
             </div>
             <img :src="imageUrl" height="150">
           </div> -->
+          <p
+            class="
+              text-xs
+              px-4
+              text-center
+              mt-2
+              font-normal
+              leading-relaxed
+              text-blueGray-400
+            "
+          >
+            For security reasons, we have left the account ID and E-mail fields
+            un-editable.
+          </p>
         </div>
 
         <hr class="mt-6 border-b-1 border-blueGray-300" />
@@ -242,6 +269,7 @@
                 placeholder="Home Address"
                 :value="address"
                 ref="address"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -271,6 +299,7 @@
                 placeholder="City"
                 :value="city"
                 ref="city"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -300,6 +329,7 @@
                 placeholder="County"
                 :value="county"
                 ref="county"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -329,6 +359,7 @@
                 placeholder="Postal Code"
                 :value="postalCode"
                 ref="postalCode"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -366,6 +397,7 @@
                 placeholder="Business Address"
                 :value="businessAddress"
                 ref="businessAddress"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -395,6 +427,7 @@
                 placeholder="Business Name"
                 :value="businessName"
                 ref="businessName"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -424,6 +457,7 @@
                 placeholder="Business City"
                 :value="businessCity"
                 ref="businessCity"
+                :disabled="areInputsDisabled"
               />
             </div>
           </div>
@@ -435,8 +469,8 @@
 
 <script>
 export default {
-  props: ["loading"],
-
+  props: ["loading", "alertShow", "alertMessage", "alertMode"],
+  emits: ["save-data", "closeAlert"],
   data() {
     return {
       imageUrl: "",
@@ -477,12 +511,19 @@ export default {
     isUpdating() {
       return this.$store.getters["account/isUpdating"];
     },
+    areInputsDisabled() {
+      return this.$store.getters["account/areInputsDisabled"];
+    },
+
     updateText() {
-      if (this.isUpdating === true) {
+      if (this.isUpdating) {
         return "Please Wait...";
-      } else {
+      } else if (this.areInputsDisabled) {
+        return "Edit";
+      } else if (!this.areInputsDisabled) {
         return "Update";
       }
+      return this.updateText;
     },
   },
   methods: {
@@ -499,8 +540,18 @@ export default {
       fileReader.readAsDataURL(file);
       this.selectedFile = file;
     },
+    // setInputsStatus() {
+    //   this.areInputsDisabled = true;
+    // },
     updateAccount() {
-      this.$store.dispatch("account/setIsUpdating", { status: true });
+      if (this.areInputsDisabled === true) {
+        this.$store.dispatch("account/setInputsStatus", {
+          status: false,
+        });
+
+        return;
+      }
+
       const accountData = {
         accountId: this.$store.getters["account/accountId"],
         userEmail: this.$store.getters["account/userEmail"],
@@ -518,6 +569,9 @@ export default {
       };
 
       this.$emit("save-data", accountData);
+
+      // areInputsDisabled is set back to true in ./view/CardAccount
+      // upon successfull account update
     },
     accountId() {
       const accountIdA = localStorage.getItem("accountId");
@@ -536,6 +590,9 @@ export default {
       } else {
         return userEmailB;
       }
+    },
+    close() {
+      this.$emit("closeAlert");
     },
   },
   created() {},

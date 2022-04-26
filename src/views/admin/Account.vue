@@ -1,12 +1,17 @@
 <template>
   <div class="flex flex-wrap">
-     <div class="w-full lg:w-3/12 px-4">
-      <CardSettings v-show="image"/>
+    <div class="w-full lg:w-3/12 px-4">
+      <CardSettings v-show="image" />
     </div>
     <div class="w-full lg:w-8/12 px-4">
-      <CardAccount @save-data="saveData" />
+      <CardAccount
+        @save-data="saveData"
+        :alertShow="alertShow"
+        :alertMessage="alertMessage"
+        :alertMode="alertMode"
+        @closeAlert="closeAlert"
+      />
     </div>
-   
   </div>
 </template>
 <script>
@@ -18,30 +23,85 @@ export default {
     CardSettings,
     CardAccount,
   },
+  data() {
+    return {
+      alertShow: false,
+      alertMode: "",
+      alertMessage: "",
+    };
+  },
   computed: {
-     image() {
-      return this.$store.getters["account/imageUrl"]
-    }
+    image() {
+      return this.$store.getters["account/imageUrl"];
+    },
+    firstName() {
+      return this.$store.getters["account/firstName"];
+    },
+    lastName() {
+      return this.$store.getters["account/lastName"];
+    },
+    dob() {
+      return this.$store.getters["account/dob"];
+    },
+    address() {
+      return this.$store.getters["account/address"];
+    },
+    city() {
+      return this.$store.getters["account/city"];
+    },
+    county() {
+      return this.$store.getters["account/county"];
+    },
+    postalCode() {
+      return this.$store.getters["account/postalCode"];
+    },
+    businessName() {
+      return this.$store.getters["account/businessName"];
+    },
+    businessAddress() {
+      return this.$store.getters["account/businessAddress"];
+    },
+    businessCity() {
+      return this.$store.getters["account/businessCity"];
+    },
   },
   methods: {
+    alertHandler(alertMode, alertMessage) {
+      this.alertShow = true;
+      this.alertMode = alertMode;
+      this.alertMessage = alertMessage;
+      setTimeout(() => {
+        this.alertShow = false;
+      }, 7000);
+    },
     saveData(accountData) {
-      const accountBalance = this.$store.getters["management/accountBalance"];
-      const ledgerBalance = this.$store.getters["management/ledgerBalance"];
-      const accountPerformance =
-        this.$store.getters["management/accountPerformance"];
-      const hasSignatory = this.$store.getters["management/hasSignatory"];
-      const hasProfilePicture =
-        this.$store.getters["management/hasProfilePicture"];
-      const hasCompletedAccount =
-        this.$store.getters["management/hasCompletedAccount"];
+      if (
+        accountData.firstName === this.firstName &&
+        accountData.lastName === this.lastName &&
+        accountData.dob === this.dob &&
+        accountData.address === this.address &&
+        accountData.city === this.city &&
+        accountData.county === this.county &&
+        accountData.postalCode === this.postalCode &&
+        accountData.businessName === this.businessName &&
+        accountData.businessAddress === this.businessAddress &&
+        accountData.businessCity === this.businessCity
+      ) {
+        this.alertHandler(
+          "with-warning",
+          "Hey, no new changes have been made yet!"
+        );
+
+        return;
+      }
+
+      this.$store.dispatch("account/setIsUpdating", {
+        status: true,
+      });
+      const management = this.$store.getters["management/management"];
 
       const managementData = {
-        accountBalance: accountBalance,
-        ledgerBalance: ledgerBalance,
-        accountPerformance: accountPerformance,
-        hasSignatory: hasSignatory,
-        hasProfilePicture: hasProfilePicture,
-        hasCompletedAccount: hasCompletedAccount,
+        ...management,
       };
 
       // const hasUpdatedAccount = this.$store.getters["management/hasUpdatedAccount"]
@@ -54,7 +114,15 @@ export default {
       setTimeout(() => {
         this.$store.dispatch("account/setIsUpdating", { status: false });
         this.$store.dispatch("account/loadAccount");
+        this.alertHandler("with-success", "Account updated successfully.");
       }, 4000);
+
+      this.$store.dispatch("account/setInputsStatus", {
+        status: true,
+      });
+    },
+    closeAlert() {
+      this.alertShow = false;
     },
   },
   // async created() {

@@ -1,12 +1,14 @@
 <template>
   <main>
     <div
+      v-show="!isApplicationDetailsVisible"
       class="
         relative
         flex flex-col
         min-w-0
         break-words
         w-full
+        lg:w-8/12
         mb-6
         shadow-lg
         rounded-lg
@@ -24,7 +26,7 @@
             font-normal
             leading-relaxed
             mt-4
-            text-emerald-800
+            text-blueGray-500
           "
         >
           The amount on the loan calculator is an initial estimate only. We will
@@ -32,8 +34,17 @@
           your loan application.
         </p>
       </div>
-      <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
-        <form>
+      <div class="flex-auto mt-2 px-4 lg:px-10 py-10 pt-0">
+        <transition name="alert">
+          <div class="flex flex-wrap justify-end" v-show="alertShow">
+            <the-alert
+              @click="closeAlert"
+              :alertMessage="alertMessage"
+              :alertMode="alertMode"
+            ></the-alert>
+          </div>
+        </transition>
+        <form @submit.prevent="validateForm">
           <h6 class="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">
             Loan Calculator
           </h6>
@@ -44,12 +55,12 @@
                   How much do you want to borrow?
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   class="
                     border-0
                     px-3
                     py-3
-                    mb-6
+                    mb-4
                     placeholder-blueGray-300
                     text-blueGray-600
                     bg-white
@@ -65,6 +76,12 @@
                   v-model="amount"
                   placeholder="Enter amount"
                 />
+                <!-- <p
+                  class="text-base text-red-500 font-light leading-relaxed mb-8"
+                  v-if="!isFormValid"
+                >
+                  Please enter a valid routing number
+                </p> -->
               </div>
             </div>
 
@@ -113,9 +130,10 @@
                     duration-150
                   "
                   v-model="selectedPurpose"
+                  required
                 >
                   <option value="0">---Select---</option>
-                  <option v-for="p in purpose" :value="p.id" :key="p.id">
+                  <option v-for="p in purpose" :value="p.name" :key="p.id">
                     {{ p.name }}
                   </option>
                 </select>
@@ -124,19 +142,35 @@
             <div id="payment-label" class="w-full md:mt-6 lg:w-6/12 px-4">
               <div class="relative w-full mb-3">
                 <label
-                  class="block text-red-500 text-xs text-center font-bold mb-2"
+                  class="
+                    block
+                    text-blueGray-400 text-xs text-center
+                    font-bold
+                    mb-2
+                  "
                 >
                   Your monthly repayment
                 </label>
+
                 <h1 id="add-size" class="text-xl font-normal text-center">
-                  ${{ initialAmount }} USD
+                  ${{ initialAmount.toLocaleString("en-US") || 0 }} USD
                 </h1>
               </div>
             </div>
           </div>
-          <div class="flex flex-wrap mt-8 px-4 justify-center">
-            <base-button id="btn-width" mode="solid with-mt"
-              >Apply
+          <div class="flex flex-wrap mt-8 justify-center">
+            <transition name="fade-spinner">
+              <base-spinner v-if="loading"></base-spinner>
+            </transition>
+            <base-button
+              v-if="!loading"
+              mode="solid with-gradient dark-text with-bmt"
+              @click="submitLoanForm"
+            >
+              Apply &nbsp;<i
+                class="fa fa-arrow-circle-right"
+                aria-hidden="true"
+              ></i>
             </base-button>
           </div>
           <p
@@ -157,6 +191,18 @@
         </form>
       </div>
     </div>
+
+    <application-details-modal
+      v-show="isApplicationDetailsVisible"
+      :duration="duration"
+      :monthlyRepayment="monthlyRepayment"
+      :totalRepayment="totalRepayment"
+      :loanAmount="amount"
+      :purpose="selectedPurpose"
+      @successAlert="successAlert"
+    >
+    </application-details-modal>
+
     <hr />
     <br /><br />
     <div
@@ -182,12 +228,12 @@
             text-blueGray-500
           "
         >
-          <strong>Representative example:</strong> Loan amount of ₦2,000,000
+          <strong>Representative example:</strong> Loan amount of $13,000
           borrowed for 12 months. <strong>Monthly Interest Rate:</strong> 2.9%.
           <strong>Total Amount Payable:</strong> ₦2,683,430.
           <strong>APR:</strong> 34.17% No other fees.
           <strong>Minimum and Maximum Annual Percentage Rate (APR):</strong> 32%
-          - 132.02%. <strong>Minimum and maximum loan tenure:</strong> 3 – 24
+          - 132.02%. <strong>Minimum and maximum loan tenure:</strong> 3 – 12
           months.
         </p>
       </div>
@@ -197,13 +243,23 @@
 
 <script>
 // import countries from "../../countries.js";
+import ApplicationDetailsModal from "../Modals/ApplicationDetailsModal.vue";
+
 export default {
+  components: { ApplicationDetailsModal },
+
   data() {
     return {
       value: 6,
-      selectedPurpose: 0,
-      amount: "500000",
-      Duration: 0,
+      selectedPurpose: "",
+      amount: 0,
+      duration: 0,
+      totalRepayment: 0,
+      monthlyRepayment: 0,
+      alertMode: "",
+      alertMessage: "",
+      alertShow: false,
+      loading: false,
       purpose: [
         {
           id: "rent",
@@ -236,25 +292,40 @@ export default {
       let newAmount = null;
 
       if (this.value > 8) {
-        const percent = (desiredAmount / 100) * 2.9;
+        let percent = (desiredAmount / 100) * 2.9;
+        percent = percent * this.value;
         newAmount = desiredAmount + percent;
         newAmount;
       } else if (desiredRange <= 4) {
-        const percent = (desiredAmount / 100) * 4.9;
+        let percent = (desiredAmount / 100) * 2.9;
+        percent = percent * this.value;
         newAmount = desiredAmount + percent;
+
         newAmount;
       } else if (desiredRange <= 8) {
-        const percent = (desiredAmount / 100) * 3.9;
+        let percent = (desiredAmount / 100) * 2.9;
+        percent = percent * this.value;
         newAmount = desiredAmount + percent;
         newAmount;
       }
 
       newAmount = newAmount / this.value;
 
-      return newAmount.toLocaleString("en-US");
+      return newAmount;
+    },
+    isApplicationDetailsVisible() {
+      return this.$store.getters["loan/isApplicationDetailsVisible"];
     },
   },
   methods: {
+    alertHandler(alertMode, alertMessage) {
+      this.alertShow = true;
+      this.alertMode = alertMode;
+      this.alertMessage = alertMessage;
+      setTimeout(() => {
+        this.alertShow = false;
+      }, 10000);
+    },
     process() {
       if (this.value > 8) {
         return {
@@ -263,15 +334,53 @@ export default {
         };
       }
     },
+    submitLoanForm() {
+      if (this.amount < 2500 || this.amount > 14500) {
+        this.popoverShow = true;
+        this.alertHandler(
+          "with-warning",
+          "Hey, to get the loan amount less than $2,200, kindly apply through our mobile app. Maximum amount for this account is $14,500."
+        );
+        return;
+      }
+      this.loading = true;
+      const initialAmount = parseInt(this.initialAmount);
+      this.totalRepayment = initialAmount * this.value;
+      this.monthlyRepayment = initialAmount;
+      this.duration = this.value;
+      setTimeout(() => {
+        this.loading = false;
+        this.$store.dispatch("loan/setIsApplicationDetails", {
+          status: true,
+        });
+      }, 2000);
+    },
+    successAlert() {
+      this.$store.dispatch("management/loadManagement");
+      this.selectedPurpose = "";
+      this.amount = 0;
+      this.alertHandler(
+        "with-success",
+        "Hello, your loan is being processed. A loan officer will get in touch with you soon."
+      );
+      this.$store.dispatch("management/loadManagement");
+    },
+    closeAlert() {
+      this.alertShow = false;
+    },
+  },
+  created() {
+    setTimeout(() => {
+      this.$store.dispatch("loan/setIsApplicationDetails", {
+        status: false,
+      });
+    }, 2000);
   },
 };
 </script>
 
 
-<style>
-#btn-width {
-  width: 20%;
-}
+<style >
 #add-size {
   margin-top: 20px;
   font-size: 2rem;
@@ -363,7 +472,7 @@ body {
   position: absolute;
   height: 40px;
   width: 60px;
-  right: -20px;
+  right: -30px;
   top: 50%;
   transform: translate(-50%, -50%);
   border: 1px solid #46ffb6;
@@ -390,7 +499,47 @@ body {
   border-right: 1px solid transparent;
   transform: rotate(45deg);
 }
+
+.alert-enter-active {
+  animation: modal 0.3s ease-out;
+}
+
+.alert-leave-active {
+  animation: modal 0.3s ease-in reverse;
+}
+
+.fade-spinner-enter-from,
+.fade-spinner-leave-to {
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+}
+
+.fade-spinner-enter-to,
+.fade-spinner-leave-from {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.fade-spinner-enter-active {
+  transition: all 0.4s ease-out;
+}
+
+.fade-spinner-leave-active {
+  transition: all 0.4s ease-in;
+}
+
 /*animation key frames*/
+
+@keyframes modal {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
 @keyframes anim {
   0% {
@@ -430,10 +579,10 @@ body {
     top: 30%;
     left: 90%;
   }
-
+  /* 
   #btn-width {
     width: 100%;
-  }
+  } */
   #payment-label {
     margin-top: 20px;
   }

@@ -16,10 +16,10 @@
     >
       <div class="rounded-t bg-white mb-0 px-6 py-6">
         <div class="text-center flex justify-between">
-          <h6 class="text-blueGray-700 text-xl font-bold">Other Banks</h6>
+          <h6 class="text-blueGray-700 text-xl font-semibold">Other Banks</h6>
           <base-button
             @click="hideVisibility"
-            mode="solid with-gradient dark-text"
+            mode="solid sm-btn with-gradient dark-text"
             >Close</base-button
           >
         </div>
@@ -269,7 +269,7 @@
               </div>
             </div>
           </div>
-          <div v-if="submitButtonClicked" class="flex flex-wrap">
+          <!-- <div v-show="submitButtonClicked" class="flex flex-wrap">
             <div class="form-control w-full lg:w-6/12 px-4">
               <div class="relative w-full mb-3">
                 <label
@@ -308,17 +308,14 @@
                   placeholder="Enter your secret 4-digits pin"
                 />
 
-                <!-- <p class="text-base font-light leading-relaxed mt-1 mb-4">
-                Please check your mail for OTP.
-              </p> -->
               </div>
             </div>
-          </div>
+          </div> -->
 
           <div class="flex flex-wrap">
             <div class="w-full lg:w-12/12 px-4">
               <div class="relative w-full mt-2">
-                <base-button v-show="!loading" mode="solid with-mt">{{
+                <base-button v-show="!loading" mode="outline with-mt">{{
                   message
                 }}</base-button>
 
@@ -335,7 +332,7 @@
                     leading-relaxed
                     mt-4
                     mb-4
-                    text-blueGray-400
+                    text-red-500
                   "
                 >
                   Sorry, you can only make transfers to Condado accounts at this

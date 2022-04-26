@@ -86,6 +86,14 @@ export default {
       ...returnedData,
     });
   },
+  setInputsStatus(context, data) {
+    const returnedData = {
+      status: data.status,
+    };
+    context.commit("setInputsStatus", {
+      ...returnedData,
+    });
+  },
 
   // async loadCoaches(context) {
   //   const response = await fetch(

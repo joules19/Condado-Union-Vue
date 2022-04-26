@@ -8,8 +8,8 @@ import Statement from "@/views/admin/Statement.vue";
 // import Table from "@/components/Cards/CardTable.vue";
 import CovidTracker from "@/views/admin/CovidTracker.vue";
 import TransferFunds from "@/views/admin/TransferFunds.vue";
-import transferDetailsModal from "@/components/Modals/transferDetailsModal.vue";
-// import CardLoan from "@/components/Cards/CardLoan.vue";
+import transferDetailsModal from "@/components/Modals/TransferDetailsModal.vue";
+import CardLoanSuccessful from "@/components/Cards/CardLoanSuccessful.vue";
 import Calculator from "@/views/admin/Calculator.vue";
 import store from "./store/index.js";
 
@@ -22,7 +22,6 @@ import UserAuth from "@/views/auth/UserAuth.vue";
 import Register from "@/views/auth/Register.vue";
 
 // views without layouts
-
 // import Landing from "@/views/Landing.vue";
 // import Profile from "@/views/Profile.vue";
 // import Index from "@/views/Index.vue";
@@ -55,25 +54,23 @@ const router = createRouter({
           name: "statement",
           meta: { requiresAuth: true },
         },
-        // {
-        //   path: "/loan",
-        //   component: Loan,
-        //   name: "loan",
-        //   meta: { requiresAuth: true },
-        // },
+        {
+          path: "/applicationreceived",
+          component: CardLoanSuccessful,
+          name: "applicationreceived",
+          meta: { requiresAuth: true },
+        },
         {
           path: "loan-calculator",
           component: Calculator,
           name: "loan-calculator",
         },
-
         {
           path: "/covid19",
           component: CovidTracker,
           name: "covid19",
           meta: { requiresAuth: true },
         },
-
         {
           path: "/transfer-funds",
           component: TransferFunds,

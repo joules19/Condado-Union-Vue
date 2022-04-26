@@ -16,15 +16,29 @@
     >
       <div class="rounded-t bg-white mb-0 px-6 py-6">
         <div class="text-center flex justify-between">
-          <h6 class="text-blueGray-700 text-xl font-bold">Transfer Funds</h6>
-          <base-button
-            mode="solid with-gradient dark-text"
-            @click="showOtherBankTransferForm"
+          <h1 class="text-blueGray-400 text-xl font-semibold">
+            Transfer Funds
+          </h1>
+
+          <base-button mode="outline sm-btn" @click="showOtherBankTransferForm"
             >Other Banks</base-button
           >
         </div>
       </div>
-      <div class="flex-auto px-2 lg:px-4 py-10 pt-0">
+      <div
+        v-show="!isOtherBankTransferFormVisible"
+        class="flex-auto px-4 lg:px-2 py-10 pt-0 mt-2"
+      >
+        <transition name="alert">
+          <div class="flex flex-wrap justify-end mt-2" v-show="alertShow">
+            <the-alert
+              @click="closeAlert"
+              :alertMessage="alertMessage"
+              :alertMode="alertMode"
+            ></the-alert>
+          </div>
+        </transition>
+
         <form @submit.prevent="submitForm">
           <h6 class="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">
             Recipient's Information
@@ -72,10 +86,11 @@
                   :disabled="areInputsDisabled"
                 />
                 <p
-                  class="text-base font-light leading-relaxed mt-1 mb-4"
+                  style="font-size: 13px"
+                  class="text-blueGray-400"
                   v-if="recipientAccountValidity === 'invalid'"
                 >
-                  Please enter a valid routing number
+                  Please enter a valid routing number.
                 </p>
               </div>
             </div>
@@ -120,7 +135,8 @@
                   v-model.trim="amount"
                 />
                 <p
-                  class="text-base font-light leading-relaxed mt-1 mb-4"
+                  style="font-size: 13px"
+                  class="text-blueGray-400"
                   v-if="amountValidity === 'invalid'"
                 >
                   Amount field can't be empty or lesser than 1, please enter a
@@ -201,7 +217,7 @@
                   placeholder="Recipient Fullname"
                   disabled="true"
                 />
-                <p class="text-blueGray-400" style="font-size: 13px">
+                <p style="font-size: 12px" class="text-blueGray-400">
                   Recipient's fullname will be auto generated
                 </p>
               </div>
@@ -252,41 +268,22 @@
                   placeholder="Enter Naration"
                 />
                 <p
-                  class="text-base font-light leading-relaxed mt-1 mb-4"
+                  style="font-size: 13px"
+                  class="text-blueGray-400"
                   v-if="narrationValidity === 'invalid'"
                 >
-                  Narration field can't be empty, please enter a detailed.
+                  Narration field can't be empty, please enter a detailed
                   narration.
                 </p>
               </div>
             </div>
           </div>
-          <div class="flex flex-wrap px-4">
-            <p
-              v-if="invalidAccount"
-              class="
-                text-base text-emerald
-                font-normal
-                leading-relaxed
-                mt-1
-                mb-4
-                text-red-600
-              "
-            >
-              Invalid Routing number, please check again.
-            </p>
-          </div>
+
           <div v-if="submitButtonClicked" class="flex flex-wrap">
             <div class="form-control w-full lg:w-6/12 px-4">
               <div class="relative w-full mb-3">
                 <label
-                  class="
-                    block
-                    text-blueGray-600 text-s
-                    font-normal
-                    mb-2
-                    required
-                  "
+                  class="block text-blueGray-600 text-s font-normal mb-2"
                   for="pin"
                 >
                   pin
@@ -315,7 +312,7 @@
                   placeholder="Enter your secret 4-digits pin"
                 />
 
-                <!-- <p class="text-base font-light leading-relaxed mt-1 mb-4">
+                <!-- <p class="text-base font-light leading-relaxed text-blueGray-400 mt-1 mb-4">
                 Please check your mail for OTP.
               </p> -->
               </div>
@@ -325,48 +322,39 @@
           <div class="flex flex-wrap">
             <div class="w-full lg:w-12/12 px-4">
               <div class="relative w-full mt-2">
-                <div class="flex flex-wrap">
-                  <base-button v-show="!loading" mode="solid with-mt">{{
-                    message
-                  }}</base-button>
+                <div class="flex flex-wrap mt-6 justify-center">
+                  <base-button
+                    v-show="!loading"
+                    mode="solid with-gradient dark-text with-bmt"
+                    >{{ message }} &nbsp;
+                    <i class="fa fa-arrow-circle-right" aria-hidden="true"></i
+                  ></base-button>
+                  <transition name="fde-spinner">
+                    <main v-show="loading" class="mt-6 justify-center">
+                      <base-spinner :color="color"></base-spinner>
+                    </main>
+                  </transition>
                 </div>
-
-                <main v-show="loading">
-                  <base-spinner :color="color"></base-spinner>
-                </main>
-                <p
-                  v-show="transferStatus === 'failed'"
-                  class="
-                    text-base
-                    font-normal
-                    leading-relaxed
-                    mt-1
-                    mb-4
-                    text-red-600
-                  "
-                >
-                  Incorrect PIN. Please try again.
-                </p>
+                <div class="flex flex-wrap mt-6 justify-center"></div>
               </div>
             </div>
           </div>
         </form>
-        <the-right-popover
-          :title="popoverTitle"
-          :message="popoverMessage"
-          :popoverShow="popoverShow"
-        ></the-right-popover>
       </div>
     </div>
   </main>
 </template>
 
 <script>
-import { createPopper } from "@popperjs/core";
-
 export default {
-  emits: ["save-data"],
-
+  props: ["alertShow", "alertMessage", "alertMode"],
+  emits: [
+    "save-data",
+    "closeAlert",
+    "inadequateFundAlert",
+    "invalidPinAlert",
+    "incorrectRoutingNumberAlert",
+  ],
   data() {
     return {
       recipientAccount: "",
@@ -383,9 +371,6 @@ export default {
       pinInput: null,
       color: "#10b981",
       areInputsDisabled: false,
-      popoverShow: false,
-      popoverTitle: "Message",
-      popoverMessage: "",
     };
   },
   computed: {
@@ -415,7 +400,7 @@ export default {
       return this.$store.getters["transfer/transactionLoading"];
     },
 
-    isOtherBankVisible() {
+    isOtherBankTransferFormVisible() {
       return this.$store.getters["transfer/isOtherBankTransferFormVisible"];
     },
   },
@@ -435,21 +420,14 @@ export default {
         today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
       return date + " " + time;
     },
+
     async submitForm() {
       this.validateInput();
       const accountBalance = this.$store.getters["management/accountBalance"];
       const checkBalance = accountBalance - this.amount;
       if (this.inputsValidity) {
         if (checkBalance <= 0) {
-          this.popoverMessage =
-            "Sorry, you don't have enough funds. You now have access to overdrafts.";
-          this.popoverShow = true;
-          createPopper(this.$refs.btnRef, this.$refs.popoverRef, {
-            placement: "right",
-          });
-          setTimeout(() => {
-            this.popoverShow = false;
-          }, 4000);
+          this.$emit("inadequateFundAlert");
           return;
         }
         this.isAccountConfirmationLoading = true;
@@ -475,8 +453,8 @@ export default {
           });
           this.isAccountConfirmationLoading = false;
           this.loading = false;
-
           this.message = "Transfer";
+          this.$emit("incorrectRoutingNumberAlert");
         } else if (this.inputsValidity && result) {
           this.message = "Transfer";
           this.$store.dispatch("transfer/setInvalidAccount", {
@@ -538,18 +516,6 @@ export default {
           this.$store.dispatch("transfer/setTransferStatus", {
             status: "successful",
           });
-          this.popoverMessage = "Transaction Successful, you rock!";
-          this.popoverShow = true;
-          createPopper(this.$refs.btnRef, this.$refs.popoverRef, {
-            placement: "top",
-          });
-
-          setTimeout(() => {
-            this.$store.dispatch("transfer/setTransferStatus", {
-              status: "pending",
-            });
-            this.popoverShow = false;
-          }, 8000);
 
           this.$emit("save-data", transferData);
         } else {
@@ -560,6 +526,7 @@ export default {
             status: false,
           });
           this.loading = false;
+          this.$emit("invalidPinAlert");
 
           setTimeout(() => {
             this.$store.dispatch("transfer/setTransferStatus", {
@@ -592,16 +559,9 @@ export default {
         status: true,
       });
     },
-    // setPopoverShow(val) {
-    //   if (val === true) {
-    //     this.popoverShow = true;
-    //     createPopper(this.$refs.btnRef, this.$refs.popoverRef, {
-    //       placement: "right",
-    //     });
-    //   } else {
-    //     this.popoverShow = false;
-    //   }
-    // },
+    closeAlert() {
+      this.$emit("closeAlert");
+    },
   },
   watch: {
     recipientAccount(value) {
@@ -620,7 +580,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .required:after {
   content: " *";
   color: red;
@@ -633,6 +593,46 @@ export default {
   color: red;
 }
 .form-control.invalid p {
-  color: red;
+  color: #94a3b8;
+}
+
+.alert-enter-active {
+  animation: modal 0.3s ease-out;
+}
+
+.alert-leave-active {
+  animation: modal 0.3s ease-in reverse;
+}
+
+.fade-spinner-enter-from,
+.fade-spinner-leave-to {
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+}
+
+.fade-spinner-enter-to,
+.fade-spinner-leave-from {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.fade-spinner-enter-active {
+  transition: all 0.4s ease-out;
+}
+
+.fade-spinner-leave-active {
+  transition: all 0.4s ease-in;
+}
+
+@keyframes modal {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 </style>

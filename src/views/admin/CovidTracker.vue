@@ -22,8 +22,12 @@
             :countries="countries"
             @get-country="getCountryData"
           ></country-select>
-          <base-button mode="mt with-mt" v-if="stats.Country" @click="resetData">
-            <i class="fas fa-window-restore"></i> Clear Data</base-button
+          <base-button
+            mode="solid with-gradient with-bmt dark-text"
+            v-if="stats.Country"
+            @click="resetData"
+          >
+            <i class="fas fa-window-restore"></i>&nbsp; Clear Data</base-button
           >
         </main>
         <main v-if="loading">

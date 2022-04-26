@@ -313,7 +313,7 @@
                 ]"
               >
                 <i
-                  class="fas fa-table mr-2 text-sm"
+                  class="fas fa-hand-holding-usd mr-2 text-sm"
                   :class="[isActive ? 'opacity-75' : 'text-blueGray-300']"
                 ></i>
                 Request for a loan
@@ -410,3 +410,14 @@ export default {
   },
 };
 </script>
+
+
+<style scoped>
+@media only screen and (max-width: 600px) {
+  img,
+  video {
+    max-width: 75%;
+    height: auto;
+  }
+}
+</style>

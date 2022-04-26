@@ -10,7 +10,7 @@
               statSubtitle="Account Balance"
               :statTitle="accountBalance()"
               statArrow="up"
-              statPercent="3.48"
+              :statPercent="accountQuota ? accountQuota.toFixed(2) : 0"
               statPercentColor="text-emerald-500"
               statDescripiron="Since last month"
               statIconName="fas fa-money-check-alt"
@@ -22,7 +22,7 @@
               statSubtitle="Ledger Balance"
               :statTitle="ledgerBalance()"
               statArrow="down"
-              statPercent="3.48"
+              :statPercent="ledgerQuota ? ledgerQuota.toFixed(2) : 0"
               statPercentColor="text-red-500"
               statDescripiron="Since last week"
               statIconName="fas fa-search-dollar"
@@ -45,9 +45,9 @@
             <card-stats
               amountValue="false"
               statSubtitle="ACCOUNT PERFORMANCE"
-              :statTitle="accountPerformance()"
+              :statTitle="accountPerformance ? `${accountPerformance}%` : 0"
               statArrow="up"
-              statPercent="12"
+              :statPercent="accountPerformance"
               statPercentColor="text-emerald-500"
               statDescripiron="Since last month"
               statIconName="fas fa-percent"
@@ -67,6 +67,17 @@ export default {
   components: {
     CardStats,
   },
+  computed: {
+    accountQuota() {
+      return this.$store.getters["management/accountQuota"];
+    },
+    ledgerQuota() {
+      return this.$store.getters["management/ledgerQuota"];
+    },
+    accountPerformance() {
+      return this.$store.getters["management/accountPerformance"];
+    },
+  },
   methods: {
     accountBalance() {
       let accountBalance = this.$store.getters["management/accountBalance"];
@@ -76,11 +87,9 @@ export default {
       let ledgerBalance = this.$store.getters["management/ledgerBalance"];
       return `$ ${ledgerBalance.toLocaleString("en-US")} USD`;
     },
-    accountPerformance() {
-      let accountPerformance =
-        this.$store.getters["management/accountPerformance"];
-      return ` ${accountPerformance}`;
-    },
+  },
+  created() {
+    console.log(this.accountQuota);
   },
 };
 </script>

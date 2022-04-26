@@ -7,12 +7,15 @@ export default {
     const managementData = {
       accountBalance: 0,
       ledgerBalance: 0,
-      accountPerformance: "2%",
+      accountPerformance: 1,
       hasUpdatedAccount: false,
       hasSignatory: false,
       hasProfilePicture: false,
       hasCompletedAccount: false,
       accountEmail: userEmail,
+      loanStatus: "",
+      accountQuota: 0.7,
+      ledgerQuota: 0.7,
     };
 
     const token = context.rootGetters.token;
@@ -56,6 +59,9 @@ export default {
       hasProfilePicture: responseData.hasProfilePicture,
       hasCompletedAccount: responseData.hasProfilePicture,
       accountEmail: responseData.accountEmail,
+      loanStatus: responseData.loanStatus,
+      accountQuota: responseData.accountQuota,
+      ledgerQuota: responseData.ledgerQuota,
     };
 
     context.commit("setManagementData", managementData);
@@ -66,13 +72,8 @@ export default {
     const userEmail = context.rootGetters.userEmail;
 
     const managementData = {
-      accountBalance: data.accountBalance,
-      ledgerBalance: data.ledgerBalance,
-      accountPerformance: data.accountPerformance,
+      ...data,
       hasUpdatedAccount: true,
-      hasSignatory: data.hasSignatory,
-      hasProfilePicture: data.hasProfilePicture,
-      hasCompletedAccount: data.hasCompletedAccount,
       accountEmail: userEmail,
     };
 
@@ -106,6 +107,8 @@ export default {
       hasProfilePicture: data.hasProfilePicture,
       hasCompletedAccount: data.hasCompletedAccount,
       accountEmail: userEmail,
+      accountQuota: data.accountQuota,
+      ledgerQuota: data.ledgerQuota,
     };
 
     const token = context.rootGetters.token;
@@ -127,5 +130,32 @@ export default {
     setTimeout(() => {
       context.dispatch("loadManagement");
     }, 3000);
+  },
+  async setLoanStatus(context, data) {
+    const userId = context.rootGetters.userId;
+    const userEmail = context.rootGetters.userEmail;
+
+    const managementData = {
+      ...data,
+      loanStatus: "pending",
+      accountEmail: userEmail,
+    };
+
+    const token = context.rootGetters.token;
+
+    const response = await fetch(
+      `https://condado-union-default-rtdb.firebaseio.com/management/${userId}.json?auth=` +
+        token,
+      {
+        method: "PUT",
+        body: JSON.stringify(managementData),
+      }
+    );
+
+    // const responseData = await response.json();
+
+    if (!response.ok) {
+      // error ...
+    }
   },
 };

@@ -16,5 +16,8 @@ export default {
   },
   setUpdateStatus(state, payload) {
     state.isUpdating = payload.status;
-  }
+  },
+  setInputsStatus(state, payload) {
+    state.areInputsDisabled = payload.status;
+  },
 };

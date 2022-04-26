@@ -17,18 +17,16 @@
       <div class="rounded-t mb-0 px-4 py-3 border-0">
         <div class="flex flex-wrap items-center">
           <div class="relative w-full px-4 max-w-full flex-grow flex-1">
-            <h3 class="font-semibold text-base text-blueGray-700">
+            <h1 class="text-blueGray-400 text-xl font-semibold">
               Recent Transactions
-            </h3>
+            </h1>
           </div>
           <div
             class="relative w-full px-4 max-w-full flex-grow flex-1 text-right"
           >
-            <base-button
-              mode="solid with-gradient dark-text"
-              @click="toggleCardVisibility"
-              >{{ message }}</base-button
-            >
+            <base-button mode="outline sm-btn" @click="toggleCardVisibility">{{
+              message
+            }}</base-button>
           </div>
         </div>
       </div>
@@ -209,10 +207,13 @@
                 "
               >
                 <base-button
-                  mode="solid sm-btn"
+                  mode="solid with-gradient dark-text md-btn"
                   @click="transactionReference(transfer.transactionRef)"
-                  >Details</base-button
-                >
+                  >Details &nbsp;<i
+                    class="fa fa-info-circle"
+                    aria-hidden="true"
+                  ></i
+                ></base-button>
               </td>
             </tr>
           </tbody>
@@ -241,9 +242,10 @@
 
 <script>
 import BaseButton from "../UI/BaseButton.vue";
-import transferDetailsModal from "../Modals/transferDetailsModal.vue";
+import TransferDetailsModal from "../Modals/TransferDetailsModal.vue";
+
 export default {
-  components: { BaseButton, transferDetailsModal },
+  components: { BaseButton, TransferDetailsModal },
   data() {
     return {
       cardVisibilty: true,
@@ -319,3 +321,26 @@ export default {
   },
 };
 </script>
+
+
+<style>
+.alert-enter-active {
+  animation: modal 0.3s ease-out;
+}
+
+.alert-leave-active {
+  animation: modal 0.3s ease-in reverse;
+}
+
+@keyframes modal {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+</style>

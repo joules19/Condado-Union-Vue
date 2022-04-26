@@ -6,18 +6,24 @@ export default {
     return state.userId;
   },
   accountId(state) {
-    return state.accountId
+    return state.accountId;
   },
   token(state) {
     return state.token;
   },
   userEmail(state) {
-    return state.userEmail
+    return state.userEmail;
   },
   isAuthenticated(state) {
     return !!state.token;
   },
   didAutoLogout(state) {
     return state.didAutoLogout;
-  }
+  },
+  errorResponse(state) {
+    return state.errorResponse;
+  },
+  alertShow(state) {
+    return state.alertShow;
+  },
 };
